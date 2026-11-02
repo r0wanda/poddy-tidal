@@ -8,10 +8,9 @@ public:
         self.client_id = CLIENT_ID
         self.client_secret = CLIENT_SECRET
 	}
-void getDeviceAuth(self) {}
+void getDeviceAuth() {
 	std::string body = "client_id=" + clientId + "&scope=r_usr+w_usr+w_sub";
 	std::list<std::string> headers;
-	headers.push_back("User-Agent: " + userAgent);
 	headers.push_back("Content-Type: application/x-www-form-urlencoded");
 	headers.push_back("Content-Length: " + std::to_string(body.length()));
 	using namespace curlpp::Options;
@@ -26,9 +25,28 @@ void getDeviceAuth(self) {}
 
 	//std::cout << sstrm.str();
 	nlohmann::json res = nlohmann::json::parse(sstrm.str());
-	}
+}
 
-    def get_auth(self, device_code: str) -> JSON:
+void getAuth(std::string deviceCode) {
+	std::string body = "client_id=" + clientId
+		+ "&device_code=" + deviceCode
+		+ "&grant_type=urn:ietf:params:oauth:grant-type:device_code"
+		+ "&scope=r_usr+w_usr+w_sub";
+	std::list<std::string> headers;
+	headers.push_back("Content-Type: application/x-www-form-urlencoded");
+	headers.push_back("Content-Length: " + std::to_string(body.length()));
+	using namespace curlpp::Options;
+	curlpp::Easy req;
+	req.setOpt(new HttpHeader(headers));
+	req.setOpt(new Encoding("utf8"));
+	req.setOpt(new PostFields(body));
+	req.setOpt(new PostFieldSize(body.length()));
+	req.setOpt(new Url(authUrl + "/token"));
+	std::ostringstream sstrm;
+	sstrm << req;
+
+	//std::cout << sstrm.str();
+	nlohmann::json res = nlohmann::json::parse(sstrm.str());
         res = request(
             "POST",
             f"{self.auth_url}/token",
